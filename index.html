@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeBoda Interview</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        input, button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>YouTube Video Info</h1>
+        <input v-model="videoId" placeholder="Enter YouTube Video ID">
+        <button @click="fetchVideoInfo">Get Video Info</button>
+        <div v-if="videoInfo">
+            <h2>{{ videoInfo.title }}</h2>
+            <img :src="videoInfo.thumbnails.medium.url" :alt="videoInfo.title">
+            <p><strong>Channel:</strong> {{ videoInfo.channelTitle }}</p>
+            <p><strong>Views:</strong> {{ videoInfo.viewCount }}</p>
+            <p><strong>Likes:</strong> {{ videoInfo.likeCount }}</p>
+            <p><strong>Published:</strong> {{ formatDate(videoInfo.publishedAt) }}</p>
+            <h3>Description:</h3>
+            <p>{{ videoInfo.description }}</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        createApp({
+            setup() {
+                const videoId = ref('')
+                const videoInfo = ref(null)
+
+                const fetchVideoInfo = async () => {
+                    try {
+                        const response = await axios.get(`http://164.90.185.174:3009/codematic/youtube/video/${videoId.value}`)
+                        videoInfo.value = response.data
+                    } catch (error) {
+                        console.error('Error fetching video info:', error)
+                        alert('Error fetching video info. Please try again.')
+                    }
+                }
+
+                const formatDate = (dateString) => {
+                    return new Date(dateString).toLocaleDateString()
+                }
+
+                return {
+                    videoId,
+                    videoInfo,
+                    fetchVideoInfo,
+                    formatDate
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
